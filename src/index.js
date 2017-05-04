@@ -1,7 +1,7 @@
 import {run} from '@cycle/run'
 import {makeDOMDriver} from '@cycle/dom'
 
-import App from './app'
+import App from './modules/updates'
 
 const main = App
 
