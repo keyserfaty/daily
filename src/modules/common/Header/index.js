@@ -5,13 +5,12 @@ import { arrow, menu, list, container, header, image, user } from './styles'
 const Header = sources => {
   const userClick$ = sources.DOM.select('.user').events('click')
 
-  const bool$ = userClick$
+  const menuToggle$ = userClick$
     .mapTo(1)
     .fold((acc, x) => acc + x, 0)
     .map(x => x % 2 === 0)
-    .startWith(false)
 
-  const header$ = bool$
+  const header$ = menuToggle$
   .map(click =>
     <header style={header}>
       <div style={menu} className="menu">
@@ -21,11 +20,11 @@ const Header = sources => {
           <div className="arrow" style={arrow} />
         </div>
         { click
-          ? (
-            <div style={list} className="list">
+          ? <div />
+          : <div style={list} className="list">
               Cerrar sesión
-            </div>)
-          : <div />}
+            </div>
+        }
       </div>
     </header>
   )
