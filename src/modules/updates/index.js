@@ -16,7 +16,7 @@ const App = sources => {
   )
 
   const sinks = {
-    DOM: main$,
+    DOM: Header(sources),
   }
   return sinks
 }
