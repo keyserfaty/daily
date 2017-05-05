@@ -3,25 +3,25 @@ import { html } from 'snabbdom-jsx';
 import { arrow, menu, list, container, header, image, user } from './styles'
 
 const Header = sources => {
-  const userClick$ = sources.DOM.select('.user').events('click')
+  const menuClick$ = sources.DOM.select('.header .menu').events('click')
 
-  const menuToggle$ = userClick$
+  const menuToggle$ = menuClick$
     .mapTo(1)
     .fold((acc, x) => acc + x, 0)
     .map(x => x % 2 === 0)
 
   const header$ = menuToggle$
-  .map(click =>
-    <header style={header}>
-      <div style={menu} className="menu">
+  .map(toggled =>
+    <header className="header" style={header}>
+      <div className="menu" style={menu}>
         <div className="user" style={container}>
           <div className="image" style={image} />
           <div className="name" style={user}>Karen Serfaty</div>
           <div className="arrow" style={arrow} />
         </div>
-        { click
+        { toggled
           ? <div />
-          : <div style={list} className="list">
+          : <div className="items" style={list}>
               Cerrar sesión
             </div>
         }
