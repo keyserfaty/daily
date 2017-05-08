@@ -33,7 +33,9 @@ function intent (DOMSource, localStorage) {
   }
 }
 
-function model (menuClick$, userStorageRetrieve$, tokenStorageRetrieve$, logoutClick$, logoutRequest$) {
+function model (events) {
+  const { menuClick$, userStorageRetrieve$, tokenStorageRetrieve$, logoutClick$, logoutRequest$ } = events
+
   const menuToggle = menuClick$
     .startWith(false)
     .mapTo(1)
@@ -43,7 +45,7 @@ function model (menuClick$, userStorageRetrieve$, tokenStorageRetrieve$, logoutC
   const userData = !isNil(userStorageRetrieve$) && !isNil(userStorageRetrieve$)
     ? userStorageRetrieve$
     .map(user => JSON.parse(user))
-
+    // TODO: Should redirect if there is no user in localStorage
     : null
 
   return xs
@@ -77,19 +79,8 @@ function view (state$) {
 }
 
 function Header (sources) {
-  const {
-    menuClick$,
-    userStorageRetrieve$,
-    tokenStorageRetrieve$,
-    logoutClick$,
-    logoutRequest$
-  } = intent(sources.DOM, sources.storage)
-
-  const state$ = model(menuClick$, userStorageRetrieve$, tokenStorageRetrieve$, logoutClick$, logoutRequest$)
-  const vtree$ = view(state$)
-
   return {
-    DOM: vtree$,
+    DOM: view(model(intent(sources.DOM, sources.storage))),
   }
 }
 
