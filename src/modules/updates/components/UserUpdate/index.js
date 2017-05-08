@@ -2,22 +2,50 @@ import xs from 'xstream'
 import { html } from 'snabbdom-jsx';
 
 function intent (DOMSource) {
-  return {}
+  const inputChange$ = DOMSource.select('.update .content input').events('input')
+  const buttonClick$ = DOMSource.select('.update .content button').events('click')
+  const postUserUpdate$ = buttonClick$.map(() => {
+    return {
+      url: '',
+      method: 'POST',
+    }
+  })
+
+  return {
+    inputChange$,
+    buttonClick$,
+    postUserUpdate$,
+  }
 }
 
 function model (events) {
-  return xs.combine().map(x => x)
+  const { inputChange$, buttonClick$ } = events
+
+  const inputValue = inputChange$
+    .map(e => e.target.value)
+    .startWith('')
+
+  const saveUpdate = buttonClick$
+    .map(e => console.log(inputValue))
+    .startWith(null)
+
+  return xs.combine(
+    inputValue,
+    saveUpdate
+  ).map(([value, update]) => ({
+    value,
+    update,
+  }))
 }
 
 function view (state$) {
   return state$.map(state => (
-    <div>
-      <div className="update">
-        <div className="image" />
-        <div className="content">
-          <label>Add your update:</label>
-          <input type="text"/>
-        </div>
+    <div className="update">
+      <div className="image" />
+      <div className="content">
+        <label>Add your update:</label>
+        <input className="input" type="text"/>
+        <button>Update!</button>
       </div>
     </div>
   ))
