@@ -1,7 +1,9 @@
 import xs from 'xstream'
 import { html } from 'snabbdom-jsx';
-import { arrow, menu, list, container, header, image, user } from './styles'
 import storageDriver from '@cycle/storage'
+import { isNil } from 'ramda'
+
+import { arrow, menu, list, container, header, image, user } from './styles'
 
 // DOM read effect: menu click
 // LocalStorage read effect: look up user on load ->
@@ -10,8 +12,10 @@ import storageDriver from '@cycle/storage'
 
 function intent (DOMSource, localStorage) {
   const menuClick$ = DOMSource.select('.header .menu').events('click')
-  //const userRetrieve$ = localStorage.getItem('user_id').events('onload')
-  const userResponse$ = DOMSource.select('.header').events('onload')
+
+  const userStorageRetrieve$ = localStorage.local.getItem('user')
+  const tokenStorageRetrieve$ = localStorage.local.getItem('session_token')
+
   const logoutClick$ = DOMSource.select('.header .menu #logout').events('click')
   const logoutRequest$ = logoutClick$.map(() => {
     return {
@@ -22,28 +26,33 @@ function intent (DOMSource, localStorage) {
 
   return {
     menuClick$,
-    //userRetrieve$,
-    userResponse$,
+    userStorageRetrieve$,
+    tokenStorageRetrieve$,
     logoutClick$,
     logoutRequest$,
   }
 }
 
-function model (menuClick$, userRetrieve$, userResponse$, logoutClick$, logoutRequest$) {
+function model (menuClick$, userStorageRetrieve$, tokenStorageRetrieve$, logoutClick$, logoutRequest$) {
   const menuToggle = menuClick$
     .startWith(false)
     .mapTo(1)
     .fold((acc, x) => acc + x, 0)
     .map(x => x % 2 === 0)
 
-  //const userRetrieve = userRetrieve$
-  //  .startWith('')
+  const userData = !isNil(userStorageRetrieve$) && !isNil(userStorageRetrieve$)
+    ? userStorageRetrieve$
+    .map(user => JSON.parse(user))
+
+    : null
 
   return xs
   .combine(
     menuToggle,
-  ).map(([toggle]) => ({
+    userData,
+  ).map(([toggle, user]) => ({
     toggle,
+    user,
   }))
 }
 
@@ -53,7 +62,7 @@ function view (state$) {
       <div className="menu" style={menu}>
         <div className="user" style={container}>
           <div className="image" style={image} />
-          <div className="name" style={user}>Karen Serfaty</div>
+          <div className="name" style={user}>{`${state.user.name_first} ${state.user.name_last}`}</div>
           <div className="arrow" style={arrow} />
         </div>
         { state.toggle
@@ -70,13 +79,13 @@ function view (state$) {
 function Header (sources) {
   const {
     menuClick$,
-    //userRetrieve$,
-    userResponse$,
+    userStorageRetrieve$,
+    tokenStorageRetrieve$,
     logoutClick$,
     logoutRequest$
-  } = intent(sources.DOM, sources.storage.local)
+  } = intent(sources.DOM, sources.storage)
 
-  const state$ = model(menuClick$)
+  const state$ = model(menuClick$, userStorageRetrieve$, tokenStorageRetrieve$, logoutClick$, logoutRequest$)
   const vtree$ = view(state$)
 
   return {

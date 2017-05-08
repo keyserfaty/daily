@@ -10,6 +10,7 @@
     "@cycle/run": "^3.1.0",
     "@cycle/storage": "^4.0.0",
     "babel-plugin-transform-react-jsx": "^6.24.1",
+    "ramda": "^0.23.0",
     "rx": "^4.1.0",
     "rxjs": "^5.3.1",
     "rxjs-es": "^5.0.0-beta.12",
