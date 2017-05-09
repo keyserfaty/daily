@@ -18,6 +18,37 @@ function intent (DOMSource) {
   }
 }
 
+const listOfUpdates = [
+  {
+    user: {
+      name: 'Karen Serfaty',
+      picture: '',
+    },
+    msg: 'Some update from some user'
+  },
+  {
+    user: {
+      name: 'Karen Serfaty',
+      picture: '',
+    },
+    msg: 'Some update from some user'
+  },
+  {
+    user: {
+      name: 'Karen Serfaty',
+      picture: '',
+    },
+    msg: 'Some update from some user'
+  },
+  {
+    user: {
+      name: 'Karen Serfaty',
+      picture: '',
+    },
+    msg: 'Some update from some user'
+  }
+]
+
 function model (events) {
   const { inputChange$, buttonClick$ } = events
 
@@ -29,23 +60,44 @@ function model (events) {
     .map(e => console.log(inputValue))
     .startWith(null)
 
+  const updatesList = xs.of(listOfUpdates)
+
   return xs.combine(
     inputValue,
-    saveUpdate
-  ).map(([value, update]) => ({
+    saveUpdate,
+    updatesList,
+  ).map(([value, update, list]) => ({
     value,
     update,
+    list,
   }))
 }
 
 function view (state$) {
   return state$.map(state => (
-    <div className="update">
-      <div className="image" />
-      <div className="content">
-        <label>Add your update:</label>
-        <input className="input" type="text"/>
-        <button>Update!</button>
+    <div>
+      <div className="update-add">
+        <div className="image" />
+        <div className="content">
+          <label>Add your update:</label>
+          <input type="text"/>
+          <button>Update!</button>
+        </div>
+      </div>
+      <div className="update-list">
+        {state.list.map(x => (
+          <div className="update">
+            <div className="user">
+              <div className="image" />
+            </div>
+            <div className="content">
+              <div className="user-name">
+                {x.user.name} said:
+              </div>
+              {x.msg}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   ))
